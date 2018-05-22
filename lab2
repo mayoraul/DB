@@ -1,0 +1,340 @@
+# DB
+show databases;
+show engines;
+use lab1;
+show create database lab1;
+drop database lab1;
+show databases;
+create database lab1;
+use lab1;
+show databases;
+
+use lab1;
+
+create table FILM
+(
+FID INT,
+FNAME CHAR(30),
+FTYPE CHAR(10),
+DNAME CHAR(30),
+LENGTH INT,
+IS3D CHAR(1),
+GRADE INT
+);
+
+show tables;
+create table ACTOR
+(
+ACTID INT,
+ANAME CHAR(30),
+SEX CHAR(2),
+BYEAR INT
+);
+
+create table ACTIN
+(
+ACTID INT,
+FID INT,
+ISLEADING CHAR(1),
+GRADE INT
+);
+
+create table THEATER
+(
+TID INT,
+TNAME CHAR(20),
+TAREA CHAR(20),
+ADDRESS CHAR(30)
+);
+
+create table SHOW_TABLE
+(
+FID INT,
+TID INT,
+PRICE INT,
+YEAR INT,
+MONTH INT
+);
+
+show tables;
+use lab1;
+
+alter table FILM add constraint FNO primary key (FID);
+alter table ACTOR add constraint ANO primary key (ACTID);
+alter table ACTIN add constraint INO primary key (FID,ACTID);
+alter table THEATER add constraint TNO primary key (TID);
+alter table SHOW_TABLE add constraint SNO primary key (FID,TID);
+alter table ACTIN add constraint foreign key (ACTID) references ACTOR (ACTID);
+alter table ACTIN add constraint foreign key (FID) references FILM (FID);
+alter table SHOW_TABLE add constraint foreign key (FID) references FILM (FID);
+alter table SHOW_TABLE add constraint foreign key (TID) references THEATER (TID);
+
+insert into FILM (FID,FNAME,FTYPE,DNAME,LENGTH,IS3D,GRADE)
+values  (1,'realmadrid','comedy','zidane',120,'Y',100);
+desc FILM;
+use lab1;
+select * from FILM;
+delete from FILM where FID=1;
+select * from FILM;
+
+insert into FILM (FID,FNAME,FTYPE,DNAME,LENGTH,IS3D,GRADE)
+values  (1,'Realmadrid','thriller','Zidane',120,'Y',100),
+		(2,'Barcelona','comedy','Valverde',99,'N',92),
+		(3,'Atletico','kongfu','Simeone',120,'Y',98),
+        (4,'Arsenal','literary','Wenger',144,'n',44),
+        (5,'Chelsea','detective','Conte',118,'N',78);
+insert into ACTOR (ACTID,ANAME,SEX,BYEAR)
+values  (1,'Navas','M',1986),
+		(4,'Ramos','M',1986),
+        (10,'Modric','W',1985),
+		(7,'Ronaldo','M',1985),
+        (2,'Mark','M',1992),
+		(3,'Pique','M',1987),
+        (5,'Sergio','W',1988),
+        (9,'Suarez','W',1987),
+        (33,'Cech','M',1982),
+        (6,'Koscielny','M',1985),
+        (11,'Ozil','W',1988),
+        (23,'Welbeck','M',1990),
+        (13,'Oblak','M',1993),
+        (15,'Savic','M',1991),
+        (14,'Gabi','M',1983),
+        (17,'Costa','M',1988),
+        (37,'Adward','W',1982),
+        (24,'Cahill','M',1985),
+        (8,'Barkely','M',1993),
+        (18,'Giroud','W',1986);
+insert into ACTIN (ACTID,FID,ISLEADING,GRADE)
+values  (1,1,'N',96),
+		(4,1,'Y',98),
+        (10,1,'N',99),
+        (7,1,'N',100),
+        (2,2,'N',86),
+        (3,2,'N',81),
+        (5,2,'Y',100),
+        (9,2,'N',100),
+        (33,4,'N',92),
+        (6,4,'Y',89),
+        (11,4,'N',94),
+        (23,4,'N',44),
+        (13,3,'N',96),
+        (15,3,'N',78),
+        (14,3,'Y',88),
+		(17,3,'N',91),
+        (37,5,'N',72),
+        (24,5,'Y',86),
+        (8,5,'N',81),
+        (18,5,'N',100);
+insert into THEATER (TID,TNAME,TAREA,ADDRESS)
+values  (1,'Bernabeu','Spain','Madrid'),
+		(2,'Noucamp','Spain','Barca'),
+        (3,'Wanda','Spain','Madrid'),
+		(4,'Emirates','England','London'),
+        (5,'Stamford','England','London');
+insert into SHOW_TABLE (FID,TID,PRICE,YEAR,MONTH)
+values  (1,1,100,2017,6),
+		(2,2,92,2015,2),
+        (3,3,84,2014,6),
+		(4,4,44,2004,4),
+        (5,5,82,2010,1);
+        
+select * from FILM;
+select * from ACTOR;
+select * from ACTIN;
+update SHOW_TABLE set PRICE=76 where FID=5;
+select * from SHOW_TABLE where FID=5;
+delete from SHOW_TABLE where FID=5;
+select * from SHOW_TABLE where FID=5;
+insert into SHOW_TABLE values(5,5,82,2010,1);
+select * from SHOW_TABLE where FID=5;
+
+create table YOUNG_ACTOR
+(
+ACTID INT primary key,
+ANAME CHAR(30),
+SEX CHAR(2),
+BYEAR INT
+);
+insert into YOUNG_ACTOR(ACTID,ANAME,SEX,BYEAR)
+select ACTID,ANAME,SEX,BYEAR from ACTOR where BYEAR>=1990;
+select * from YOUNG_ACTOR;
+
+select * from lab1.ACTOR into outfile "/var/lib/mysql-files/ACTOR.txt"
+FIELDS
+terminated by ','
+enclosed by '\"'
+escaped by '\''
+lines 
+terminated by '\r\n';
+
+show variables like '%secure%';
+
+create database test;
+USE test;
+create table ACTOR
+(
+ACTID INT primary key,
+ANAME CHAR(30),
+SEX CHAR(2),
+BYEAR INT
+);
+load data infile '/var/lib/mysql-files/ACTOR.txt' into table ACTOR
+FIELDS
+terminated by ','
+enclosed by '\"'
+escaped by '\''
+lines 
+terminated by '\r\n';
+SELECT * FROM ACTOR;
+
+use lab1;
+CREATE VIEW 80_main_actor(actid,aname,byear,acttimes,bestgrade)
+AS SELECT ACTOR.ACTID,ANAME,BYEAR,COUNT(ISLEADING),MAX(GRADE)
+FROM ACTOR,ACTIN
+WHERE ACTOR.ACTID=ACTIN.ACTID AND ISLEADING='Y' AND BYEAR BETWEEN 1980 AND 1990 
+GROUP BY ACTIN.ACTID;
+
+SELECT * FROM 80SHOW_TABLE_main_actor;
+
+DROP VIEW IF EXISTS 80_main_actor;
+
+DROP TRIGGER ftype_autoset;
+
+delimiter $
+CREATE TRIGGER ftype_autoset BEFORE INSERT 
+ON FILM FOR EACH ROW 
+BEGIN 
+		IF (NEW.DNAME='Zidane') 
+	THEN
+    SET NEW.ftype='thriller';
+END IF;
+END$
+
+delimiter ;
+INSERT INTO FILM VALUE (7,'juventus','comedy','Zidane',102,'Y',96);
+
+SELECT MONTH FROM SHOW_TABLE 
+WHERE SHOW_TABLE.TID IN 
+(SELECT THEATER.TID FROM THEATER
+WHERE THEATER.ADDRESS='Madrid')
+AND SHOW_TABLE.FID IN
+(SELECT FILM.FID FROM FILM
+WHERE FILM.FNAME='Realmadrid')
+ORDER BY MONTH DESC;
+
+SELECT * FROM FILM 
+WHERE FILM.FID IN
+(SELECT ACTIN.FID FROM ACTIN
+WHERE ACTIN.ACTID = NULL)
+ORDER BY FILM.FTYPE,FILM.GRADE DESC;
+
+SELECT FID,FNAME,DNAME FROM FILM
+WHERE FID IN
+(SELECT FID FROM SHOW_TABLE
+WHERE YEAR > 2017);
+
+SELECT FID, GROUP_CONCAT(TID)
+FROM SHOW_TABLE
+GROUP BY FID
+HAVING COUNT(TID) = (SELECT COUNT(*) FROM THEATER);
+
+SELECT FID,FNAME,DNAME,GRADE FROM FILM
+WHERE GRADE NOT BETWEEN 80 AND 89;
+
+SELECT DNAME,MAX(GRADE),MIN(GRADE) FROM FILM
+GROUP BY DNAME; 
+
+SELECT DNAME,COUNT(*) FROM FILM
+GROUP BY DNAME
+HAVING COUNT(DNAME)>=2;
+
+SELECT DNAME,COUNT(*),AVG(GRADE) FROM FILM
+WHERE DNAME IN
+(SELECT DNAME FROM FILM
+ WHERE GRADE >= 80
+ GROUP BY DNAME HAVING COUNT(DNAME)>=2)
+GROUP BY DNAME;
+
+INSERT INTO FILM VALUES 
+(8,'Monaco','love','Wenger',123,'n',88),
+(9,'Unknow','sad','Wenger',100,'n',97);
+
+SELECT FILM.DNAME, ANY_VALUE(ACTOR.ACTID), ANY_VALUE(ACTOR.ANAME)
+FROM FILM, ACTIN, ACTOR
+WHERE FILM.FID = ACTIN.FID AND ACTIN.ACTID = ACTOR.ACTID 
+GROUP BY FILM.DNAME HAVING COUNT(FILM.FID)>=2;
+
+SELECT ACTID, AVG(GRADE)
+FROM ACTIN
+WHERE ISLEADING='Y'
+GROUP BY ACTID; 
+
+use lab1;
+
+SELECT MIN(YEAR+MONTH*0.01)
+FROM SHOW_TABLE
+WHERE FID IN
+(SELECT FID FROM FILM
+WHERE GRADE > 90);
+
+SELECT MIN(YEAR+MONTH*0.01), TID
+FROM SHOW_TABLE
+WHERE FID IN
+(SELECT FID FROM FILM
+WHERE GRADE > 90)
+GROUP BY TID
+ORDER BY MIN(YEAR+MONTH*0.01)
+LIMIT 1;
+
+SELECT FID, COUNT(*)
+FROM SHOW_TABLE
+GROUP BY FID;
+
+SELECT DNAME, GROUP_CONCAT(FTYPE), AVG(GRADE)
+FROM FILM 
+WHERE FTYPE IN('thriller','comedy','kongfu')
+GROUP BY DNAME
+ORDER BY AVG(GRADE) DESC;
+
+SELECT FILM.FID, FILM.FNAME, THEATER.TNAME, SHOW_TABLE.YEAR, SHOW_TABLE.MONTH
+FROM FILM
+INNER JOIN SHOW_TABLE ON FILM.FID = SHOW_TABLE.FID AND FILM.FNAME REGEXP 'madrid'
+INNER JOIN THEATER ON SHOW_TABLE.TID = THEATER.TID
+ORDER BY FILM.FNAME;
+
+INSERT INTO SHOW_TABLE VALUE (1,2,100,2015,2);
+
+SELECT DISTINCT F1.TID 
+FROM SHOW_TABLE AS F1 INNER JOIN SHOW_TABLE AS F2 
+ON F1.TID = F2.TID AND (F1.YEAR + 0.01*F1.MONTH) = (F2.YEAR + 0.01*F2.MONTH)
+AND ((F1.FID = 1 AND F2.FID = 2) OR (F1.FID = 2 AND F2.FID = 1));
+
+SELECT ACTOR.ACTID, ACTOR.ANAME
+FROM ACTOR
+WHERE ACTOR.ACTID NOT IN
+(SELECT ACTIN.ACTID
+FROM ACTIN
+INNER JOIN FILM 
+ON ACTIN.FID = FILM.FID AND FILM.GRADE < 85);
+
+SELECT ACTOR.ANAME 
+FROM ACTOR
+WHERE ACTOR.ACTID IN
+(SELECT ACTIN.ACTID
+FROM ACTIN 
+INNER JOIN FILM 
+ON ACTIN.FID = FILM.FID AND FILM.DNAME = 'Zidane');
+
+SELECT DISTINCT ACTOR.ACTID, ACTOR.ANAME, FILM.FNAME
+FROM ACTOR 
+LEFT OUTER JOIN ACTIN ON ACTOR.ACTID = ACTIN.ACTID
+LEFT OUTER JOIN FILM ON ACTIN.FID = FILM.FID
+ORDER BY ACTOR.ACTID;
+
+SELECT FILM.FID, FILM.FNAME
+FROM FILM
+WHERE FILM.FID IN
+(SELECT ANY_VALUE(SHOW_TABLE.FID)
+FROM SHOW_TABLE
+HAVING COUNT(SHOW_TABLE.FID) > 3)
+AND FILM.GRADE = NULL; 
